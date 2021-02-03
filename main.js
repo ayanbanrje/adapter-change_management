@@ -95,7 +95,6 @@ class ServiceNowAdapter extends EventEmitter {
     *   that handles the response.
     */
     healthcheck(callback) {
-        ServiceNowAdapter
         this.getRecord((result, error) => {
             let responseData = null;
             let errorMessage = null;
@@ -119,9 +118,9 @@ class ServiceNowAdapter extends EventEmitter {
                 * for the callback's errorMessage parameter.
                 */
             
-                this.log.error(`Error returned from GET request from ${this.id}:\n${JSON.stringify(error)}`);
+                //log.error(`Error returned from GET request from ${this.id}:\n${JSON.stringify(error)}`);
                 errorMessage = error;
-                this.emit('OFFLINE');
+                //this.emitStatus('OFFLINE');
             } else {
                 /**
                 * Write this block.
@@ -134,11 +133,13 @@ class ServiceNowAdapter extends EventEmitter {
                 * responseData parameter.
                 */
                 responseData = result;
-                this.log.debug("Result \n",result.body);
-                this.emit('ONLINE');
+                //log.debug("Result \n",result.body);
+                //this.emitStatus('ONLINE');
             }
             return callback(responseData, errorMessage);
         });
+
+        //this.emitOnline();
     }
 
   /**
@@ -219,17 +220,24 @@ class ServiceNowAdapter extends EventEmitter {
 
 module.exports = ServiceNowAdapter;
 
-var j = new module.exports(1,{
-    url: 'https://dev59861.service-now.com',
-    auth: {
-        username: 'admin',
-        password: 'yH1wEHlbXI0e',
-    },
-    serviceNowTable: 'change_request'
-});
+// var j = new module.exports(1,{
+//     url: 'https://dev59861.service-now.com',
+//     auth: {
+//         username: 'admin',
+//         password: 'yH1wEHlbXI0e',
+//     },
+//     serviceNowTable: 'change_request'
+// });
 
-j.healthcheck(function(data, error){
-    if(data){
-        console.log('daaaaaaaaaaataaaaaaaaa',data.body);
-    }
-});
+// j.healthcheck(function(data, error){
+//     if(data){
+//         console.log('daaaaaaaaaaataaaaaaaaa',data.body);
+//     }
+// });
+
+// j.on('OFFLINE',function(){
+//     console.log('yyyyyyyyyyyyyyyyyyyyyyy')
+// })
+// j.on('ONLINE',function(){
+//     console.log('KKKKKKKKKKKKK')
+// })
