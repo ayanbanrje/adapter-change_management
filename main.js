@@ -197,7 +197,31 @@ class ServiceNowAdapter extends EventEmitter {
      * Note how the object was instantiated in the constructor().
      * get() takes a callback function.
      */
-     this.connector.get((results, error) => callback(results, error))
+     this.connector.get((results, error) => {
+         let callBackResult = null;
+         let callBackResultError = null;
+         if(error){
+             callBackResultError = error.body;
+         }
+
+         if(results && results.body){
+             let newElement = [];
+             let recordSet = JSON.parse(results.body).result;
+             recordSet.forEach((value,index)=>{
+                 newElement.push({
+                     change_ticket_number:value.number,
+                     active:value.active,
+                     priority:value.priority,
+                     description:value.description,
+                     work_start:value.work_start,
+                     work_end:value.work_end,
+                     change_ticket_key:value.sys_id
+                 });
+             })
+             callBackResult = newElement;
+         }
+         callback(callBackResult, callBackResultError)
+    })
   }
 
   /**
@@ -210,14 +234,54 @@ class ServiceNowAdapter extends EventEmitter {
    *   handles the response.
    */
   postRecord(callback) {
-    /**
-     * Write the body for this function.
-     * The function is a wrapper for this.connector's post() method.
-     * Note how the object was instantiated in the constructor().
-     * post() takes a callback function.
-     */
-     this.connector.post((results, error) => callback(results, error))
+        /**
+        * Write the body for this function.
+        * The function is a wrapper for this.connector's post() method.
+        * Note how the object was instantiated in the constructor().
+        * post() takes a callback function.
+        */
+        this.connector.post((results, error) => {
+            let callBackResult = null;
+            let callBackResultError = null;
+            if(error){
+                callBackResultError = error.body;
+            }
+
+            if(results && results.body){
+                let recordSet = JSON.parse(results.body).result;
+                let newElement = {
+                        change_ticket_number:recordSet.number,
+                        active:recordSet.active,
+                        priority:recordSet.priority,
+                        description:recordSet.description,
+                        work_start:recordSet.work_start,
+                        work_end:recordSet.work_end,
+                        change_ticket_key:recordSet.sys_id
+                    }
+                
+                callBackResult = newElement;
+            }
+            
+            callback(callBackResult, callBackResultError)
+        });
+        
   }
 }
 
 module.exports = ServiceNowAdapter;
+
+var j = new module.exports('test',{
+  "url": "https://dev59861.service-now.com",
+  "auth": {
+    "username": "admin",
+    "password": "yH1wEHlbXI0e"
+  },
+  "serviceNowTable": "change_request"
+});
+
+j.getRecord((results, error) =>{
+    
+    results?console.log('result Set : ', results):'';
+    error?console.log('error : ', error):'';
+
+});
